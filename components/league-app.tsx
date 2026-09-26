@@ -24,17 +24,17 @@ function errorMessage(error: unknown) {
   if (message === 'Member not found') return 'ไม่พบสมาชิกคนนี้ในลีก';
   return 'ทำรายการไม่สำเร็จ กรุณาตรวจสอบการเชื่อมต่อและลองอีกครั้ง';
 }
-async function readAll<T>(table: string): Promise<T[]> {
+async function readAll<T>(table: string, orderBy = 'id'): Promise<T[]> {
   const rows: T[] = [];
   for (let start = 0; ; start += 1000) {
-    const { data, error } = await supabase!.from(table).select('*').order('id').range(start, start + 999);
+    const { data, error } = await supabase!.from(table).select('*').order(orderBy).range(start, start + 999);
     if (error) throw error;
     rows.push(...data as T[]);
     if (data.length < 1000) return rows;
   }
 }
 async function fetchLeagueData(): Promise<LeagueData> {
-  const [seasons, players, matches, historicalStandings] = await Promise.all([readAll<Season>('seasons'), readAll<Player>('players'), readAll<Match>('matches'), readAll<HistoricalStanding>('historical_standings').catch(() => [])]);
+  const [seasons, players, matches, historicalStandings] = await Promise.all([readAll<Season>('seasons'), readAll<Player>('players'), readAll<Match>('matches'), readAll<HistoricalStanding>('historical_standings', 'season_id').catch(() => [])]);
   return { seasons, players, matches, historicalStandings };
 }
 
