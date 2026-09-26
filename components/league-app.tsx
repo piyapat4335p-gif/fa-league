@@ -35,6 +35,8 @@ async function readAll<T>(table: string, orderBy = 'id'): Promise<T[]> {
 }
 async function fetchLeagueData(): Promise<LeagueData> {
   const [seasons, players, matches, historicalStandings] = await Promise.all([readAll<Season>('seasons'), readAll<Player>('players'), readAll<Match>('matches'), readAll<HistoricalStanding>('historical_standings', 'season_id').catch(() => [])]);
+  const seasonNumber = (name: string) => Number(name.match(/(\d+)\s*$/)?.[1] ?? -1);
+  seasons.sort((a, b) => seasonNumber(b.name) - seasonNumber(a.name) || (b.created_at ?? '').localeCompare(a.created_at ?? ''));
   return { seasons, players, matches, historicalStandings };
 }
 
