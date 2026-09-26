@@ -20,16 +20,17 @@
 
 .mobile-stat{display:none}
 @media(max-width:640px){
-  .table-scroll{padding:0;overflow:visible}
-  .standings-table{min-width:0;width:100%;font-size:13px}
+  .table-scroll{padding:0;overflow:auto;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
+  .standings-table{min-width:710px;width:100%;font-size:13px}
   .standings-table th{padding:10px 3px;font-size:11px}
   .standings-table td{height:55px;padding:6px 3px}
-  .standings-table th:nth-child(1),.standings-table td:nth-child(1){position:static;width:31px;min-width:31px;box-shadow:none}
-  .standings-table th:nth-child(2),.standings-table td:nth-child(2){position:static;min-width:116px;width:auto;box-shadow:none}
-  .standings-table th:nth-child(7),.standings-table td:nth-child(7),.standings-table th:nth-child(8),.standings-table td:nth-child(8),.standings-table th:nth-child(9),.standings-table td:nth-child(9),.standings-table th:nth-child(11),.standings-table td:nth-child(11){display:none}
-  .standings-table th:nth-child(10),.standings-table td:nth-child(10){position:static;min-width:35px;box-shadow:none}
+  .standings-table th:nth-child(1),.standings-table td:nth-child(1){position:sticky;left:0;width:35px;min-width:35px;box-shadow:none;z-index:2}
+  .standings-table th:nth-child(2),.standings-table td:nth-child(2){position:sticky;left:35px;min-width:145px;width:145px;box-shadow:5px 0 8px -7px #63768f;z-index:2}
+  .standings-table th:nth-child(7),.standings-table td:nth-child(7),.standings-table th:nth-child(8),.standings-table td:nth-child(8),.standings-table th:nth-child(9),.standings-table td:nth-child(9),.standings-table th:nth-child(11),.standings-table td:nth-child(11){display:table-cell}
+  .standings-table th:nth-child(10),.standings-table td:nth-child(10){position:static;min-width:44px;box-shadow:none}
+  .standings-table th:nth-child(1),.standings-table th:nth-child(2){background:#f7f9fc}.standings-table td:nth-child(1),.standings-table td:nth-child(2){background:#fff}.standings-table .leader-row td:nth-child(1),.standings-table .leader-row td:nth-child(2){background:#effaf3}
   .desktop-stat{display:none}.mobile-stat{display:inline}
   .rank{width:22px;height:22px;font-size:11px}
   .player-link{gap:7px}.player-avatar{width:26px;height:26px;border-radius:50%;font-size:8px}.player-link strong{font-size:14px;line-height:1.2}.player-link small,.leader-cup{display:none}.points{font-size:16px}
-  .table-footer>span:last-child{display:none}
+  .table-footer>span:last-child{display:inline}.table-footer>span:last-child:after{content:' · เลื่อนดู →'}
 }
