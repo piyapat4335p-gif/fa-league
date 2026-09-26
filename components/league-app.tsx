@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import type { User } from '@supabase/supabase-js';
 import { Home, Trophy, Plus, ChartNoAxesColumnIncreasing, Settings, History, Gamepad2, Users, Goal, TrendingUp, ChevronDown, ArrowUpRight, LogIn, LogOut, Printer, UserPlus, ShieldCheck, RefreshCw, Check, CalendarDays, CircleHelp, Pencil, Trash2, Minus, X, ArrowLeft, Crown, CircleCheck, LoaderCircle } from 'lucide-react';
-import type { LeagueData, Match, Player, Profile, Season, Standing } from '@/lib/types';
+import type { HistoricalStanding, LeagueData, Match, Player, Profile, Season, Standing } from '@/lib/types';
 import { demoData } from '@/lib/demo';
 import { calculateStandings, validateMatch } from '@/lib/standings';
 import { supabase } from '@/lib/supabase';
@@ -12,7 +12,7 @@ import { Avatar, Empty, MatchList, Modal, Panel, ProgressChart, StandingsTable }
 type View = 'home' | 'standings' | 'add' | 'history' | 'stats' | 'settings';
 type Dialog = { kind: 'player'; player?: Player } | { kind: 'season' } | { kind: 'delete-match'; match: Match } | { kind: 'delete-player'; player: Player } | { kind: 'profile-role'; member: Profile; nextRole: Profile['role'] } | { kind: 'detail'; id: string } | null;
 const nav = [{ id: 'home', name: 'หน้าแรก', icon: Home }, { id: 'standings', name: 'ตารางคะแนน', icon: Trophy }, { id: 'add', name: 'บันทึกผลแข่ง', icon: Plus }, { id: 'history', name: 'ประวัติการแข่ง', icon: History }, { id: 'stats', name: 'สถิติผู้เล่น', icon: ChartNoAxesColumnIncreasing }, { id: 'settings', name: 'ตั้งค่า', icon: Settings }] as const;
-const emptyData: LeagueData = { seasons: [], players: [], matches: [] };
+const emptyData: LeagueData = { seasons: [], players: [], matches: [], historicalStandings: [] };
 const isDemo = !supabase;
 function errorMessage(error: unknown) {
   const code = (error as { code?: string })?.code;
@@ -34,8 +34,8 @@ async function readAll<T>(table: string): Promise<T[]> {
   }
 }
 async function fetchLeagueData(): Promise<LeagueData> {
-  const [seasons, players, matches] = await Promise.all([readAll<Season>('seasons'), readAll<Player>('players'), readAll<Match>('matches')]);
-  return { seasons, players, matches };
+  const [seasons, players, matches, historicalStandings] = await Promise.all([readAll<Season>('seasons'), readAll<Player>('players'), readAll<Match>('matches'), readAll<HistoricalStanding>('historical_standings')]);
+  return { seasons, players, matches, historicalStandings };
 }
 
 export default function LeagueApp() {
@@ -99,9 +99,14 @@ export default function LeagueApp() {
 
   const players = useMemo(() => data.players.filter(p => p.season_id === seasonId), [data.players, seasonId]);
   const matches = useMemo(() => data.matches.filter(m => m.season_id === seasonId).sort((a, b) => b.played_at.localeCompare(a.played_at) || b.id.localeCompare(a.id)), [data.matches, seasonId]);
-  const rows = useMemo(() => calculateStandings(players, matches), [players, matches]);
+  const snapshots = useMemo(() => data.historicalStandings.filter(s => s.season_id === seasonId), [data.historicalStandings, seasonId]);
+  const rows = useMemo(() => snapshots.length ? snapshots.map(s => {
+    const player = players.find(p => p.id === s.player_id)!;
+    return { ...player, ...s, id: player.id, player_name: player.player_name, team_name: player.team_name, gd: s.gf - s.ga, form: [] } as Standing;
+  }).sort((a, b) => b.points - a.points || b.gd - a.gd || b.gf - a.gf || a.player_name.localeCompare(b.player_name, 'th')) : calculateStandings(players, matches), [players, matches, snapshots]);
   const season = data.seasons.find(s => s.id === seasonId);
-  const totalGoals = matches.reduce((n, m) => n + m.home_score + m.away_score, 0);
+  const totalGoals = snapshots.length ? rows.reduce((n, row) => n + row.gf, 0) : matches.reduce((n, m) => n + m.home_score + m.away_score, 0);
+  const completedMatches = snapshots.length ? rows.reduce((n, row) => n + row.played, 0) / 2 : matches.length;
   const go = (next: View) => { setEditing(null); setView(next); setFilter(''); window.scrollTo({ top: 0, behavior: 'smooth' }); };
   const openDialog = (next: Dialog) => { setNotice(''); setDialog(next); };
   const showPlayer = (id: string) => openDialog({ kind: 'detail', id });
@@ -178,7 +183,7 @@ export default function LeagueApp() {
     {loadError && <div className="error-banner" role="alert">{loadError}<button className="text-button" onClick={() => void refresh()}>ลองอีกครั้ง</button></div>}
     {loading && <div className="loading-line" role="status"><LoaderCircle className="spin" size={17} /> กำลังโหลดข้อมูลลีก…</div>}
     {(view === 'home' || view === 'standings') && <>
-      <div className="summary-grid">{[{ label: 'ผู้เล่นทั้งหมด', value: players.length, unit: 'คนในลีก', icon: Users, tone: 'blue' }, { label: 'แข่งขันแล้ว', value: matches.length, unit: 'แมตช์', icon: Gamepad2, tone: 'purple' }, { label: 'ประตูรวม', value: totalGoals, unit: 'ประตู', icon: Goal, tone: 'green' }, { label: 'เฉลี่ยต่อแมตช์', value: matches.length ? (totalGoals / matches.length).toFixed(1) : '0.0', unit: 'ประตู / แมตช์', icon: TrendingUp, tone: 'orange' }].map(({ label, value, unit, icon: Icon, tone }) => <div className={`summary-card tone-${tone}`} key={label}><div className="summary-top"><span>{label}</span><span className="summary-icon"><Icon size={21} /></span></div><strong>{value}<small>{unit}</small></strong><div className="summary-decoration" /></div>)}</div>
+      <div className="summary-grid">{[{ label: 'ผู้เล่นทั้งหมด', value: players.length, unit: 'คนในลีก', icon: Users, tone: 'blue' }, { label: 'แข่งขันแล้ว', value: completedMatches, unit: 'แมตช์', icon: Gamepad2, tone: 'purple' }, { label: 'ประตูรวม', value: totalGoals, unit: 'ประตู', icon: Goal, tone: 'green' }, { label: 'เฉลี่ยต่อแมตช์', value: completedMatches ? (totalGoals / completedMatches).toFixed(1) : '0.0', unit: 'ประตู / แมตช์', icon: TrendingUp, tone: 'orange' }].map(({ label, value, unit, icon: Icon, tone }) => <div className={`summary-card tone-${tone}`} key={label}><div className="summary-top"><span>{label}</span><span className="summary-icon"><Icon size={21} /></span></div><strong>{value}<small>{unit}</small></strong><div className="summary-decoration" /></div>)}</div>
       <Panel title="ตารางคะแนน" icon={<Trophy size={20} />} action={{ label: 'สถิติผู้เล่น', onClick: () => go('stats') }}><StandingsTable rows={rows} onPlayer={showPlayer} /><div className="table-footer"><span><i className="legend-dot" />อันดับ 1 ของลีก</span><span>ชนะ 3 · เสมอ 1 · แพ้ 0 แต้ม</span></div></Panel>
     </>}
     {view === 'home' && <><button className="add-match-banner" onClick={() => go('add')}><span className="add-banner-icon"><Plus size={24} /></span><span><strong>แมตช์ใหม่ พร้อมบันทึกแล้ว?</strong><small>อัปเดตสกอร์ แล้วไปลุ้นอันดับกัน</small></span><ArrowUpRight size={23} /></button><div className="quick-actions"><button onClick={() => admin && seasonId ? openDialog({ kind: 'player' }) : go('settings')}><UserPlus size={21} /><span>เพิ่มผู้เล่น</span><ChevronDown className="quick-arrow" size={16} /></button><button onClick={() => go('settings')}><Users size={21} /><span>จัดการลีก</span><ChevronDown className="quick-arrow" size={16} /></button><button onClick={() => window.print()}><Printer size={21} /><span>พิมพ์รายงาน</span><ChevronDown className="quick-arrow" size={16} /></button></div><div className="dashboard-grid"><Panel title="ดาวซัลโว" icon={<Goal size={20} />} action={{ label: 'ทั้งหมด', onClick: () => go('stats') }}><div className="scorer-list">{[...rows].sort((a, b) => b.gf - a.gf).slice(0, 5).map((p, i) => <button className="scorer-row" key={p.id} onClick={() => showPlayer(p.id)}><span className={`rank rank-${i + 1}`}>{i + 1}</span><Avatar name={p.player_name} index={i} /><span className="scorer-name"><strong>{p.player_name}</strong><small>{p.team_name}</small></span><b>{p.gf}<small>ประตู</small></b></button>)}{!rows.length && <Empty>ยังไม่มีสถิติผู้เล่น</Empty>}</div></Panel><Panel title="ที่สุดของลีก" icon={<ChartNoAxesColumnIncreasing size={20} />}><LeagueRecords rows={rows} /></Panel><Panel title="ผลการแข่งขันล่าสุด" icon={<History size={20} />} action={{ label: 'ดูทั้งหมด', onClick: () => go('history') }}><MatchList matches={matches.slice(0, 5)} players={players} /></Panel><Panel title="เส้นทางสู่แชมป์" icon={<TrendingUp size={20} />}><ProgressChart players={players} matches={matches} /></Panel></div></>}

@@ -6,4 +6,5 @@ const fixtures = [[0,1,3,1],[2,3,2,0],[4,5,1,1],[6,0,0,2],[1,2,2,2],[3,4,3,0],[5
 export const demoData: LeagueData = {
   seasons: [{ id: seasonId, name: 'FA League 20', is_active: true }], players,
   matches: fixtures.map(([h,a,hs,as], i) => ({ id: `10000000-0000-4000-8000-${String(i + 1).padStart(12, '0')}`, season_id: seasonId, home_player_id: players[h].id, away_player_id: players[a].id, home_score: hs, away_score: as, played_at: new Date(Date.UTC(2026, 8, 10 + Math.floor(i / 3), 11, i % 3 * 20)).toISOString() })),
+  historicalStandings: [],
 };
