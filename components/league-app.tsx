@@ -34,7 +34,7 @@ async function readAll<T>(table: string): Promise<T[]> {
   }
 }
 async function fetchLeagueData(): Promise<LeagueData> {
-  const [seasons, players, matches, historicalStandings] = await Promise.all([readAll<Season>('seasons'), readAll<Player>('players'), readAll<Match>('matches'), readAll<HistoricalStanding>('historical_standings')]);
+  const [seasons, players, matches, historicalStandings] = await Promise.all([readAll<Season>('seasons'), readAll<Player>('players'), readAll<Match>('matches'), readAll<HistoricalStanding>('historical_standings').catch(() => [])]);
   return { seasons, players, matches, historicalStandings };
 }
 
