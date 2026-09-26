@@ -19,6 +19,7 @@
 @media print{.sidebar,.topbar,.bottom-nav,.heading-action,.demo-banner,.add-match-banner,.quick-actions,.text-button,.toast,.page-footer{display:none!important}.main-shell{margin:0}.main-content{max-width:none;padding:0}.panel,.summary-card{break-inside:avoid;box-shadow:none}.table-scroll{overflow:visible}.standings-table{min-width:0}.dashboard-grid{grid-template-columns:1fr 1fr}body{background:white;font-size:11px}.summary-grid{grid-template-columns:repeat(4,1fr)}.summary-card{min-height:90px}.standings-table td{height:45px}.page-heading h1{font-size:22px}}
 
 .mobile-stat{display:none}
+.fee-paid,.fee-pending{border-radius:999px;padding:6px 10px;font-size:11px;font-weight:700;white-space:nowrap}.fee-paid{background:#e8f8ef;color:#158456}.fee-pending{background:#fff2e8;color:#b86d2c}.fee-toggle{flex-direction:row;align-items:center;font-size:14px}.fee-toggle input{width:20px;min-height:20px}
 @media(max-width:640px){
   .table-scroll{padding:0;overflow:auto;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
   .standings-table{min-width:710px;width:100%;font-size:13px}
