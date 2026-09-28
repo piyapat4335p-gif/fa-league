@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { calculateStandings, pointsProgression, validateMatch } from '../lib/standings.ts';
+import { calculateStandings, pointsProgression, validateHomeAwaySchedule, validateMatch } from '../lib/standings.ts';
 import { demoData } from '../lib/demo.ts';
 import type { Match, Player } from '../lib/types.ts';
 const players: Player[] = ['a','b','c'].map(id => ({id, season_id:'s', player_name:id, team_name:id}));
@@ -35,4 +35,13 @@ test('invalid scores, duplicate player and missing date are rejected', () => {
   const good=match('1','a','b',0,0);
   assert.equal(validateMatch(good),null);
   for(const change of [{home_score:-1},{home_score:1.5},{away_score:100},{away_player_id:'a'},{played_at:''}]) assert.ok(validateMatch({...good,...change}));
+});
+test('a pair can play once at each home ground and no third match', () => {
+  const first = match('1','a','b',1,0);
+  const reverse = match('2','b','a',0,1);
+  assert.equal(validateHomeAwaySchedule([], first), null);
+  assert.match(validateHomeAwaySchedule([first], match('3','a','b',2,0))!, /สลับเหย้า/);
+  assert.equal(validateHomeAwaySchedule([first], reverse), null);
+  assert.match(validateHomeAwaySchedule([first, reverse], match('3','a','b',2,0))!, /ครบ 2 นัด/);
+  assert.equal(validateHomeAwaySchedule([first, reverse], { id: first.id, home_player_id: first.home_player_id, away_player_id: first.away_player_id }), null);
 });

@@ -41,3 +41,13 @@ export function validateMatch(match: Pick<Match, 'home_player_id' | 'away_player
   if (!Number.isFinite(Date.parse(match.played_at))) return 'กรุณาเลือกวันและเวลาแข่งขัน';
   return null;
 }
+
+export function validateHomeAwaySchedule(matches: Match[], candidate: Pick<Match, 'id' | 'home_player_id' | 'away_player_id'>) {
+  const pairMatches = matches.filter(match => match.id !== candidate.id && (
+    (match.home_player_id === candidate.home_player_id && match.away_player_id === candidate.away_player_id) ||
+    (match.home_player_id === candidate.away_player_id && match.away_player_id === candidate.home_player_id)
+  ));
+  if (pairMatches.length >= 2) return 'คู่นี้แข่งครบ 2 นัด (เหย้า–เยือน) แล้ว จึงบันทึกเพิ่มไม่ได้';
+  if (pairMatches.some(match => match.home_player_id === candidate.home_player_id && match.away_player_id === candidate.away_player_id)) return 'คู่นี้บันทึกฝั่งเหย้านี้แล้ว นัดถัดไปต้องสลับเหย้า–เยือน';
+  return null;
+}

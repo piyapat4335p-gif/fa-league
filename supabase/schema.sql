@@ -48,6 +48,7 @@ create index matches_season_date_idx on public.matches(season_id, played_at desc
 create index matches_home_idx on public.matches(home_player_id, season_id);
 create index matches_away_idx on public.matches(away_player_id, season_id);
 create index matches_author_idx on public.matches(created_by);
+create unique index matches_one_home_leg on public.matches(season_id, home_player_id, away_player_id);
 
 -- Role is read from a protected table, never from editable user metadata.
 create function private.is_admin() returns boolean
