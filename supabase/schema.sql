@@ -29,6 +29,12 @@ create table public.players (
   unique (season_id, player_name)
 );
 create index players_user_idx on public.players(user_id);
+create table public.player_fees (
+  player_id uuid primary key references public.players(id) on delete cascade,
+  paid boolean not null default false,
+  note text not null default '' check (char_length(note) <= 160),
+  updated_at timestamptz not null default now()
+);
 create table public.matches (
   id uuid primary key default gen_random_uuid(),
   season_id uuid not null references public.seasons(id) on delete restrict,
@@ -81,11 +87,13 @@ create trigger match_updated before update on public.matches for each row execut
 alter table public.profiles enable row level security;
 alter table public.seasons enable row level security;
 alter table public.players enable row level security;
+alter table public.player_fees enable row level security;
 alter table public.matches enable row level security;
 
-revoke all on public.profiles, public.seasons, public.players, public.matches from anon, authenticated;
+revoke all on public.profiles, public.seasons, public.players, public.player_fees, public.matches from anon, authenticated;
 grant select on public.seasons, public.players, public.matches to anon, authenticated;
 grant select on public.profiles to authenticated;
+grant select, insert, update, delete on public.player_fees to authenticated;
 grant insert on public.seasons, public.players, public.matches to authenticated;
 grant update (name) on public.seasons to authenticated;
 grant update (player_name, team_name, user_id) on public.players to authenticated;
@@ -103,6 +111,8 @@ create policy seasons_admin_update on public.seasons for update to authenticated
 create policy players_admin_insert on public.players for insert to authenticated with check ((select private.is_admin()));
 create policy players_admin_update on public.players for update to authenticated using ((select private.is_admin())) with check ((select private.is_admin()));
 create policy players_admin_delete on public.players for delete to authenticated using ((select private.is_admin()));
+create policy player_fees_admin_only on public.player_fees for all to authenticated
+using ((select private.is_admin())) with check ((select private.is_admin()));
 create policy matches_member_insert on public.matches for insert to authenticated
 with check (created_by = (select auth.uid()) and exists (select 1 from public.profiles where id = (select auth.uid())));
 create policy matches_admin_update on public.matches for update to authenticated using ((select private.is_admin())) with check ((select private.is_admin()));
