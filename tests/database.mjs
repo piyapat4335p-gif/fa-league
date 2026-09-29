@@ -7,8 +7,9 @@ const db = new PGlite();
 const playerId = '20000000-0000-4000-8000-000000000001';
 const adminId = '20000000-0000-4000-8000-000000000002';
 const season = '00000000-0000-4000-8000-000000000020';
-const home = '00000000-0000-4000-8000-000000000001';
-const away = '00000000-0000-4000-8000-000000000002';
+// Use a fixture that is intentionally absent from the 30 sample matches.
+const home = '00000000-0000-4000-8000-000000000004';
+const away = '00000000-0000-4000-8000-000000000001';
 await db.exec(`create role anon; create role authenticated; create schema auth;
   create table auth.users (id uuid primary key, raw_user_meta_data jsonb);
   create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid $$;
