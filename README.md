@@ -31,6 +31,8 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=YOUR_PUBLIC_ANON_OR_PUBLISHABLE_KEY
 6. ใน Authentication → URL Configuration ตั้ง Site URL เป็น URL เว็บจริง และเพิ่ม `http://localhost:3000` รวมทั้ง URL Vercel ใน Redirect URLs ตามสภาพแวดล้อมที่ใช้
 7. เปิด Email/Password sign-in ผู้เล่นสมัครผ่านเมนู **ตั้งค่า** และยืนยันอีเมลก่อนเข้าสู่ระบบ หรือผู้ดูแลสร้างบัญชีให้ใน Supabase Authentication ผู้ใช้ใหม่ได้สิทธิ์ `player` เสมอ
 
+หากตั้งฐานข้อมูลไว้ก่อนเพิ่มระบบค่าสมัคร ให้เปิด SQL Editor แล้วรัน `supabase/player-fees.sql` หนึ่งครั้ง เพื่อเพิ่มตารางและสิทธิ์สำหรับบันทึกสถานะชำระเงิน
+
 ## ผู้ดูแลลีกคนแรก
 
 สร้างบัญชีผ่านแอปหรือ Supabase Authentication จากนั้นใช้ **SQL Editor** รัน (เปลี่ยนอีเมลให้ตรงกับบัญชีคุณ):
