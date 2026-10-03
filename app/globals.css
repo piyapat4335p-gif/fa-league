@@ -24,17 +24,26 @@
 @media(max-width:640px){.pending-fixtures{padding:0 16px 16px}.fixture-list{grid-template-columns:1fr}.fixture-row{padding:10px}.pending-summary{gap:6px}.pending-summary span{font-size:11px;padding:6px 8px}}
 @media(max-width:640px){
   .table-scroll{padding:0;overflow:auto;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
-  .standings-table{min-width:710px;width:100%;font-size:13px}
-  .standings-table th{padding:10px 3px;font-size:11px}
-  .standings-table td{height:55px;padding:6px 3px}
-  .standings-table th:nth-child(1),.standings-table td:nth-child(1){position:sticky;left:0;width:35px;min-width:35px;box-shadow:none;z-index:2}
-  .standings-table th:nth-child(2),.standings-table td:nth-child(2){position:sticky;left:35px;min-width:145px;width:145px;box-shadow:5px 0 8px -7px #63768f;z-index:2}
+  /* Keep rank through points within the viewport; only recent form extends right. */
+  .standings-table{min-width:0;width:calc(100% + 90px);table-layout:fixed;font-size:11px}
+  .standings-table th{padding:8px 1px;font-size:10px}
+  .standings-table td{height:40px;padding:2px 1px}
+  .standings-table th:nth-child(1),.standings-table td:nth-child(1){position:sticky;left:0;width:26px;min-width:0;box-shadow:none;z-index:2}
+  .standings-table th:nth-child(2),.standings-table td:nth-child(2){position:sticky;left:26px;min-width:0;width:80px;box-shadow:5px 0 8px -7px #63768f;z-index:2}
+  .standings-table th:nth-child(2){padding-left:3px}
   .standings-table th:nth-child(7),.standings-table td:nth-child(7),.standings-table th:nth-child(8),.standings-table td:nth-child(8),.standings-table th:nth-child(9),.standings-table td:nth-child(9),.standings-table th:nth-child(11),.standings-table td:nth-child(11){display:table-cell}
-  .standings-table th:nth-child(10),.standings-table td:nth-child(10){position:static;min-width:44px;box-shadow:none}
+  .standings-table th:nth-child(10),.standings-table td:nth-child(10){position:static;min-width:0;box-shadow:none}
+  .standings-table th:nth-child(11),.standings-table td:nth-child(11){width:90px}
   .standings-table th:nth-child(1),.standings-table th:nth-child(2){background:#f7f9fc}.standings-table td:nth-child(1),.standings-table td:nth-child(2){background:#fff}.standings-table .leader-row td:nth-child(1),.standings-table .leader-row td:nth-child(2){background:#effaf3}
   .desktop-stat{display:none}.mobile-stat{display:inline}
-  .rank{width:22px;height:22px;font-size:11px}
-  .player-link{gap:7px}.player-avatar{width:26px;height:26px;border-radius:50%;font-size:8px}.player-link strong{font-size:14px;line-height:1.2}.player-link small,.leader-cup{display:none}.points{font-size:16px}
-  .table-footer>span:last-child{display:inline}.table-footer>span:last-child:after{content:' · เลื่อนดู →'}
+  .standings-table .rank{width:20px;height:20px;font-size:10px}
+  .standings-table .player-link{gap:0;min-height:36px;padding:0 3px}
+  .standings-table .player-link>span{min-width:0;overflow:hidden}
+  .standings-table .player-link strong{display:block;font-size:12px;line-height:1.3;overflow:hidden;text-overflow:ellipsis}
+  .standings-table .player-avatar,.standings-table .player-link small,.standings-table .leader-cup{display:none}
+  .standings-table .points{font-size:13px}
+  .standings-table .form-dots{gap:2px}.standings-table .form-dots span{width:14px;height:17px;font-size:9px}
+  .table-footer{gap:8px;flex-wrap:wrap;padding:9px 12px}
+  .table-footer>span:last-child{display:inline}.table-footer>span:last-child:after{content:' · ฟอร์ม →'}
   .bottom-nav{grid-template-columns:repeat(6,minmax(0,1fr));padding-left:2px;padding-right:2px}.bottom-nav small{font-size:9px}.bottom-nav .bottom-add>span{width:42px;height:42px;border-radius:14px}.bottom-nav .bottom-add svg{width:23px;height:23px}
 }
